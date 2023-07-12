@@ -6,5 +6,8 @@
   "repository": "https://github.com/Kirera-Wainaina/voico-backend.git",
   "author": "R. Kirera Wainaina",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@types/node": "^20.4.1"
+  }
 }
