@@ -1,0 +1,10 @@
+{
+  "name": "voico-backend",
+  "version": "0.0.1",
+  "description": "Voico chrome extension backend.",
+  "main": "index.js",
+  "repository": "https://github.com/Kirera-Wainaina/voico-backend.git",
+  "author": "R. Kirera Wainaina",
+  "license": "MIT",
+  "private": true
+}
