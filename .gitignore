@@ -6,3 +6,7 @@ node_modules/
 
 # log files
 *.log
+
+# everything other than x in uploaded
+uploaded/*
+!uploaded/x
