@@ -4,6 +4,7 @@ const http = require("http");
 const http2 = require("http2");
 const fs = require('node:fs');
 const dotenv = require("dotenv");
+const { log } = require("./lib/utils");
 const HTTP_PORT = 80;
 const HTTP2_PORT = 443;
 dotenv.config();
@@ -32,6 +33,7 @@ http2Server.on("request", (request, response) => {
         handlePOSTRequests(request, response);
     }
 });
+http2Server.on("request", (request) => log(`Path: ${request.url}`));
 function handleGETRequests(request, response) {
     response.writeHead(200, { "content-type": "text/html" });
     response.end("<h1>Hello, World!</h1>");
