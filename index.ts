@@ -36,5 +36,14 @@ const http2Server = http2.createSecureServer(options);
 http2Server.listen(HTTP2_PORT, () => console.log(`Listening on port ${HTTP2_PORT}`))
 
 http2Server.on("request", (request: Http2ServerRequest, response: Http2ServerResponse) => {
-  console.log(request.headers)
+  if (request.headers[":method"] == "GET") {
+    handleGETRequests(request, response);
+  } else if (request.headers[":method"] == "POST") {
+    handlePOSTRequests(request, response);
+  }
 })
+
+function handleGETRequests(request:Http2ServerRequest, response: Http2ServerResponse) {
+  response.writeHead(200, { "content-type": "text/html" });
+  response.end("<h1>Hello, World!</h1>");
+}
