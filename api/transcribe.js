@@ -28,7 +28,10 @@ module.exports = function (request, response) {
             const openai = new openai_1.OpenAIApi(configuration);
             const openaiResponse = yield openai.createTranscription(node_fs_1.default.createReadStream(files[0]), "whisper-1");
             yield promises_1.default.unlink(files[0]);
-            response.writeHead(200, { "content-type": "text/plain" });
+            response.writeHead(200, {
+                "content-type": "text/plain",
+                "access-control-allow-origin": "*"
+            });
             response.end(openaiResponse.data.text);
         }
         catch (error) {

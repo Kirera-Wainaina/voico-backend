@@ -21,7 +21,10 @@ module.exports = async function(request:Http2ServerRequest, response:Http2Server
     );
     
     await fsPromises.unlink(files[0]);
-    response.writeHead(200, { "content-type": "text/plain" });
+    response.writeHead(200, { 
+      "content-type": "text/plain",
+      "access-control-allow-origin": "*"
+    });
     response.end(openaiResponse.data.text)
   } catch (error) {
     console.log(error);
