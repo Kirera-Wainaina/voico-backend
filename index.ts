@@ -56,7 +56,6 @@ function handlePOSTRequests(request:Http2ServerRequest, response:Http2ServerResp
 
   if (requestPath) {
     const parsedUrl = new URL(requestPath, process.env.DOMAIN);
-    console.log(`.${parsedUrl.pathname}`)
     const main = require(`.${parsedUrl.pathname}.js`);
     main(request, response);
   }
