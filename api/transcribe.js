@@ -26,7 +26,7 @@ module.exports = function (request, response) {
         try {
             const [fields, files] = yield new FormDataHandler(request).run();
             const openai = new openai_1.OpenAIApi(configuration);
-            const openaiResponse = yield openai.createTranscription(node_fs_1.default.createReadStream(files[0]), "whisper-1");
+            const openaiResponse = yield openai.createTranscription(node_fs_1.default.createReadStream(files[0]), "whisper-1", undefined, undefined, undefined, "en");
             yield promises_1.default.unlink(files[0]);
             response.writeHead(200, {
                 "content-type": "text/plain",

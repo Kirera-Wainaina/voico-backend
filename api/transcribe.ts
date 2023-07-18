@@ -17,7 +17,11 @@ module.exports = async function(request:Http2ServerRequest, response:Http2Server
   
     const openaiResponse = await openai.createTranscription(
       fs.createReadStream(files[0]),
-      "whisper-1"
+      "whisper-1",
+      undefined,
+      undefined,
+      undefined,
+      "en"
     );
     
     await fsPromises.unlink(files[0]);
