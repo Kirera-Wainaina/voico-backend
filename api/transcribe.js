@@ -18,15 +18,16 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const node_fs_1 = __importDefault(require("node:fs"));
 const promises_1 = __importDefault(require("node:fs/promises"));
 dotenv_1.default.config();
-const configuration = new openai_1.Configuration({
-    apiKey: process.env.WHISPER_API_KEY
-});
 module.exports = function (request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const [fields, files] = yield new FormDataHandler(request).run();
+            const configuration = new openai_1.Configuration({
+                apiKey: fields.APIKey
+            });
             const openai = new openai_1.OpenAIApi(configuration);
-            const openaiResponse = yield openai.createTranscription(node_fs_1.default.createReadStream(files[0]), "whisper-1", undefined, undefined, undefined, "en");
+            const openaiResponse = yield openai.createTranscription(node_fs_1.default.createReadStream(files[0]), "whisper-1", undefined, undefined, undefined, fields.language ? fields.language : "en" // default is english language
+            );
             yield promises_1.default.unlink(files[0]);
             response.writeHead(200, {
                 "content-type": "text/plain",

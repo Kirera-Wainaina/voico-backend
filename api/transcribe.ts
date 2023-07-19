@@ -6,13 +6,14 @@ import fs from "node:fs";
 import fsPromises from "node:fs/promises"
 
 dotenv.config()
-const configuration = new Configuration({
-  apiKey: process.env.WHISPER_API_KEY
-})
 
 module.exports = async function(request:Http2ServerRequest, response:Http2ServerResponse) {
   try {
     const [fields, files] = await new FormDataHandler(request).run();
+
+    const configuration = new Configuration({
+      apiKey: fields.APIKey
+    });
     const openai = new OpenAIApi(configuration);
   
     const openaiResponse = await openai.createTranscription(
@@ -21,7 +22,7 @@ module.exports = async function(request:Http2ServerRequest, response:Http2Server
       undefined,
       undefined,
       undefined,
-      "en"
+      fields.language ? fields.language : "en" // default is english language
     );
     
     await fsPromises.unlink(files[0]);
