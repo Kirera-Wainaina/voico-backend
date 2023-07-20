@@ -22,6 +22,8 @@ module.exports = function (request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const [fields, files] = yield new FormDataHandler(request).run();
+            if (!fields.APIKey || !fields.language)
+                throw Error("API Key or language missing");
             const configuration = new openai_1.Configuration({
                 apiKey: fields.APIKey
             });

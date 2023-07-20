@@ -11,6 +11,8 @@ module.exports = async function(request:Http2ServerRequest, response:Http2Server
   try {
     const [fields, files] = await new FormDataHandler(request).run();
 
+    if (!fields.APIKey || !fields.language) throw Error("API Key or language missing");
+
     const configuration = new Configuration({
       apiKey: fields.APIKey
     });
