@@ -39,7 +39,10 @@ module.exports = function (request, response) {
         }
         catch (error) {
             console.log(error);
-            response.writeHead(500, { "content-type": "text/plain" });
+            response.writeHead(500, {
+                "content-type": "text/plain",
+                "access-control-allow-origin": "*"
+            });
             response.end("error");
         }
     });

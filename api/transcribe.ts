@@ -35,7 +35,10 @@ module.exports = async function(request:Http2ServerRequest, response:Http2Server
     response.end(openaiResponse.data.text)
   } catch (error) {
     console.log(error);
-    response.writeHead(500, { "content-type": "text/plain" });
+    response.writeHead(500, { 
+      "content-type": "text/plain",
+      "access-control-allow-origin": "*"
+    });
     response.end("error")
   }
 }
