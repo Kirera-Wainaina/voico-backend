@@ -17,6 +17,7 @@ const http2 = require("http2");
 // const fs = require('node:fs')
 const dotenv = require("dotenv");
 const { log } = require("./lib/utils");
+const mimes = require("./lib/MIMEHandler");
 const path_1 = __importDefault(require("path"));
 const node_fs_1 = __importDefault(require("node:fs"));
 const HTTP_PORT = 80;
@@ -97,7 +98,11 @@ function sendPageResponse(response, filePath) {
             sendPageNotFoundErrorResponse(response);
             return;
         }
-        response.writeHead(200, { "content-type": "text/html" });
+        response.writeHead(200, {
+            'content-type': mimes.findMIMETypeFromExtension(path_1.default.extname(filePath)),
+            'content-encoding': 'gzip',
+            'cache-control': 'max-age=1209600'
+        });
         node_fs_1.default.createReadStream(filePath)
             .pipe(response);
     });

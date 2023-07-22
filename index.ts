@@ -6,6 +6,7 @@ const http2 = require("http2");
 // const fs = require('node:fs')
 const dotenv = require("dotenv");
 const { log } = require("./lib/utils");
+const mimes = require("./lib/MIMEHandler");
 import path from "path";
 import fs from "node:fs";
 
@@ -103,7 +104,14 @@ async function sendPageResponse(response:Http2ServerResponse, filePath: string) 
     return
   }
 
-  response.writeHead(200, { "content-type": "text/html" })
+  response.writeHead(
+    200,
+    {
+      'content-type': mimes.findMIMETypeFromExtension(path.extname(filePath)),
+      'content-encoding': 'gzip',
+      'cache-control': 'max-age=1209600'
+    }
+  )
   fs.createReadStream(filePath)
     .pipe(response)
 }
