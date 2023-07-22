@@ -100,11 +100,13 @@ function sendPageResponse(response, filePath) {
         }
         response.writeHead(200, {
             'content-type': mimeType,
-            'content-encoding': 'gzip',
+            'content-encoding': mimeType.includes("image") ? '' : "gzip",
             'cache-control': 'max-age=1209600'
         });
+        console.log(mimeType);
         if (mimeType.includes("image")) {
             // images shouldn't be compressed
+            console.log(filePath);
             node_fs_1.default.createReadStream(filePath)
                 .pipe(response);
             return;
