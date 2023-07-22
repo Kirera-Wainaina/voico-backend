@@ -5,11 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const http2 = require("http2");
-const fs = require('node:fs');
+// const fs = require('node:fs')
 const dotenv = require("dotenv");
-// const path = require("node:path");
 const { log } = require("./lib/utils");
 const path_1 = __importDefault(require("path"));
+const node_fs_1 = __importDefault(require("node:fs"));
 const HTTP_PORT = 80;
 const HTTP2_PORT = 443;
 dotenv.config();
@@ -23,11 +23,15 @@ httpServer.on("request", (request, response) => {
     response.end();
 });
 //////////////////////// HANDLE HTTPS REQUESTS ///////////////////////////////////
-const options = {
-    allowHTTP1: true,
-    key: fs.readFileSync(process.env.CERT_KEY_PATH),
-    cert: fs.readFileSync(process.env.CERT_CERTIFICATE_PATH)
-};
+let options;
+if (process.env.CERT_KEY_PATH
+    && process.env.CERT_CERTIFICATE_PATH) {
+    options = {
+        allowHTTP1: true,
+        key: node_fs_1.default.readFileSync(process.env.CERT_KEY_PATH),
+        cert: node_fs_1.default.readFileSync(process.env.CERT_CERTIFICATE_PATH)
+    };
+}
 const http2Server = http2.createSecureServer(options);
 http2Server.listen(HTTP2_PORT, () => console.log(`Listening on port ${HTTP2_PORT}`));
 http2Server.on("request", (request, response) => {
@@ -41,8 +45,13 @@ http2Server.on("request", (request, response) => {
 http2Server.on("request", (request) => log(`Path: ${request.url}`));
 function handleGETRequests(request, response) {
     const filePath = createFilePath(request.headers[":path"]);
-    response.writeHead(200, { "content-type": "text/html" });
-    response.end("<h1>Hello, World!</h1>");
+    if (!filePath) {
+        sendPageNotFoundErrorResponse(response);
+        return;
+    }
+    // response.writeHead(200, { "content-type": "text/html" });
+    // response.end("<h1>Hello, World!</h1>");
+    sendPageResponse(response, filePath);
 }
 function handlePOSTRequests(request, response) {
     const requestPath = request.headers[":path"];
@@ -67,4 +76,13 @@ function createFilePath(requestPath) {
         // all other filepaths
         return parsedUrl.pathname;
     }
+}
+function sendPageNotFoundErrorResponse(response) {
+    response.writeHead(404, { "content-type": "text/html" });
+    response.end("<h1>Couldn't Find Page you are looking for</h1>");
+}
+function sendPageResponse(response, filePath) {
+    response.writeHead(200, { "content-type": "text/html" });
+    node_fs_1.default.createReadStream(filePath)
+        .pipe(response);
 }

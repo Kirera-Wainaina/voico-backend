@@ -3,11 +3,11 @@ import { Http2ServerRequest, Http2ServerResponse } from "http2";
 
 const http = require("http");
 const http2 = require("http2");
-const fs = require('node:fs')
+// const fs = require('node:fs')
 const dotenv = require("dotenv");
-// const path = require("node:path");
 const { log } = require("./lib/utils");
 import path from "path";
+import fs from "node:fs";
 
 const HTTP_PORT = 80;
 const HTTP2_PORT = 443;
@@ -27,12 +27,16 @@ httpServer.on("request", (request: IncomingMessage, response: ServerResponse) =>
 })
 
 //////////////////////// HANDLE HTTPS REQUESTS ///////////////////////////////////
-
-const options = {
-  allowHTTP1: true,
-  key: fs.readFileSync(process.env.CERT_KEY_PATH),
-  cert: fs.readFileSync(process.env.CERT_CERTIFICATE_PATH)
-};
+let options;
+if (process.env.CERT_KEY_PATH
+    && process.env.CERT_CERTIFICATE_PATH) {
+  options = {
+    allowHTTP1: true,
+    key: fs.readFileSync(process.env.CERT_KEY_PATH),
+    cert: fs.readFileSync(process.env.CERT_CERTIFICATE_PATH)
+  };
+  
+}
 
 const http2Server = http2.createSecureServer(options);
 
@@ -50,8 +54,15 @@ http2Server.on("request", (request: Http2ServerRequest) => log(`Path: ${request.
 
 function handleGETRequests(request:Http2ServerRequest, response: Http2ServerResponse) {
   const filePath = createFilePath(request.headers[":path"]);
-  response.writeHead(200, { "content-type": "text/html" });
-  response.end("<h1>Hello, World!</h1>");
+
+  if (!filePath) {
+    sendPageNotFoundErrorResponse(response);
+    return
+  }
+
+  // response.writeHead(200, { "content-type": "text/html" });
+  // response.end("<h1>Hello, World!</h1>");
+  sendPageResponse(response, filePath);
 }
 
 function handlePOSTRequests(request:Http2ServerRequest, response:Http2ServerResponse) {
@@ -77,4 +88,15 @@ function createFilePath(requestPath:string | undefined) {
     // all other filepaths
     return parsedUrl.pathname
   }
+}
+
+function sendPageNotFoundErrorResponse(response:Http2ServerResponse) {
+  response.writeHead(404, {"content-type": "text/html"})
+  response.end("<h1>Couldn't Find Page you are looking for</h1>")
+}
+
+function sendPageResponse(response:Http2ServerResponse, filePath: string) {
+  response.writeHead(200, {"content-type": "text/html"})
+  fs.createReadStream(filePath)
+    .pipe(response);
 }
