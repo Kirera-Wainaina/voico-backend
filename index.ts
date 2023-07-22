@@ -9,6 +9,7 @@ const { log } = require("./lib/utils");
 const mimes = require("./lib/MIMEHandler");
 import path from "path";
 import fs from "node:fs";
+import zlib from "node:zlib";
 
 const HTTP_PORT = 80;
 const HTTP2_PORT = 443;
@@ -60,9 +61,6 @@ function handleGETRequests(request:Http2ServerRequest, response: Http2ServerResp
     sendPageNotFoundErrorResponse(response);
     return
   }
-
-  // response.writeHead(200, { "content-type": "text/html" });
-  // response.end("<h1>Hello, World!</h1>");
   sendPageResponse(response, filePath);
 }
 
@@ -98,6 +96,7 @@ function sendPageNotFoundErrorResponse(response:Http2ServerResponse) {
 
 async function sendPageResponse(response:Http2ServerResponse, filePath: string) {
   const existing = await isExistingFile(filePath);
+  const mimeType:string = mimes.findMIMETypeFromExtension(path.extname(filePath));
 
   if (!existing) {
     sendPageNotFoundErrorResponse(response);
@@ -107,16 +106,24 @@ async function sendPageResponse(response:Http2ServerResponse, filePath: string) 
   response.writeHead(
     200,
     {
-      'content-type': mimes.findMIMETypeFromExtension(path.extname(filePath)),
+      'content-type': mimeType,
       'content-encoding': 'gzip',
       'cache-control': 'max-age=1209600'
     }
   )
+
+  if (mimeType.includes("image")) {
+    // images shouldn't be compressed
+    fs.createReadStream(filePath)
+      .pipe(response);
+      return
+  }
   fs.createReadStream(filePath)
+    .pipe(zlib.createGzip())
     .pipe(response)
 }
 
-function isExistingFile(filePath:string) {
+function isExistingFile(filePath:string){
   return new Promise((resolve, reject) => {
       fs.access(filePath, (error) => {
           if (error) {

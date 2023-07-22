@@ -20,6 +20,7 @@ const { log } = require("./lib/utils");
 const mimes = require("./lib/MIMEHandler");
 const path_1 = __importDefault(require("path"));
 const node_fs_1 = __importDefault(require("node:fs"));
+const node_zlib_1 = __importDefault(require("node:zlib"));
 const HTTP_PORT = 80;
 const HTTP2_PORT = 443;
 dotenv.config();
@@ -59,8 +60,6 @@ function handleGETRequests(request, response) {
         sendPageNotFoundErrorResponse(response);
         return;
     }
-    // response.writeHead(200, { "content-type": "text/html" });
-    // response.end("<h1>Hello, World!</h1>");
     sendPageResponse(response, filePath);
 }
 function handlePOSTRequests(request, response) {
@@ -94,16 +93,24 @@ function sendPageNotFoundErrorResponse(response) {
 function sendPageResponse(response, filePath) {
     return __awaiter(this, void 0, void 0, function* () {
         const existing = yield isExistingFile(filePath);
+        const mimeType = mimes.findMIMETypeFromExtension(path_1.default.extname(filePath));
         if (!existing) {
             sendPageNotFoundErrorResponse(response);
             return;
         }
         response.writeHead(200, {
-            'content-type': mimes.findMIMETypeFromExtension(path_1.default.extname(filePath)),
+            'content-type': mimeType,
             'content-encoding': 'gzip',
             'cache-control': 'max-age=1209600'
         });
+        if (mimeType.includes("image")) {
+            // images shouldn't be compressed
+            node_fs_1.default.createReadStream(filePath)
+                .pipe(response);
+            return;
+        }
         node_fs_1.default.createReadStream(filePath)
+            .pipe(node_zlib_1.default.createGzip())
             .pipe(response);
     });
 }
