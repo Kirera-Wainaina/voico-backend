@@ -80,13 +80,13 @@ function createFilePath(requestPath:string | undefined) {
 
   const parsedUrl = new URL(requestPath, process.env.DOMAIN);
   if (parsedUrl.pathname == '/') {
-    return `/frontend/html/home.html`
+    return path.join(__dirname, `/frontend/html/home.html`)
   } else if (!path.extname(parsedUrl.pathname)) {
     // there is no extension therefore a browser path
-    return `/frontend/html${parsedUrl.pathname}`;
+    return path.join(__dirname, `/frontend/html${parsedUrl.pathname}.html`);
   } else {
     // all other filepaths
-    return parsedUrl.pathname
+    return path.join(__dirname, parsedUrl.pathname);
   }
 }
 
@@ -95,8 +95,27 @@ function sendPageNotFoundErrorResponse(response:Http2ServerResponse) {
   response.end("<h1>Couldn't Find Page you are looking for</h1>")
 }
 
-function sendPageResponse(response:Http2ServerResponse, filePath: string) {
-  response.writeHead(200, {"content-type": "text/html"})
+async function sendPageResponse(response:Http2ServerResponse, filePath: string) {
+  const existing = await isExistingFile(filePath);
+
+  if (!existing) {
+    sendPageNotFoundErrorResponse(response);
+    return
+  }
+
+  response.writeHead(200, { "content-type": "text/html" })
   fs.createReadStream(filePath)
-    .pipe(response);
+    .pipe(response)
+}
+
+function isExistingFile(filePath:string) {
+  return new Promise((resolve, reject) => {
+      fs.access(filePath, (error) => {
+          if (error) {
+              resolve(false)
+          } else {
+              resolve(true)
+          }
+      })
+  })
 }

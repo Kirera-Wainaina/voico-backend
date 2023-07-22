@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -66,15 +75,15 @@ function createFilePath(requestPath) {
         return;
     const parsedUrl = new URL(requestPath, process.env.DOMAIN);
     if (parsedUrl.pathname == '/') {
-        return `/frontend/html/home.html`;
+        return path_1.default.join(__dirname, `/frontend/html/home.html`);
     }
     else if (!path_1.default.extname(parsedUrl.pathname)) {
         // there is no extension therefore a browser path
-        return `/frontend/html${parsedUrl.pathname}`;
+        return path_1.default.join(__dirname, `/frontend/html${parsedUrl.pathname}.html`);
     }
     else {
         // all other filepaths
-        return parsedUrl.pathname;
+        return path_1.default.join(__dirname, parsedUrl.pathname);
     }
 }
 function sendPageNotFoundErrorResponse(response) {
@@ -82,7 +91,26 @@ function sendPageNotFoundErrorResponse(response) {
     response.end("<h1>Couldn't Find Page you are looking for</h1>");
 }
 function sendPageResponse(response, filePath) {
-    response.writeHead(200, { "content-type": "text/html" });
-    node_fs_1.default.createReadStream(filePath)
-        .pipe(response);
+    return __awaiter(this, void 0, void 0, function* () {
+        const existing = yield isExistingFile(filePath);
+        if (!existing) {
+            sendPageNotFoundErrorResponse(response);
+            return;
+        }
+        response.writeHead(200, { "content-type": "text/html" });
+        node_fs_1.default.createReadStream(filePath)
+            .pipe(response);
+    });
+}
+function isExistingFile(filePath) {
+    return new Promise((resolve, reject) => {
+        node_fs_1.default.access(filePath, (error) => {
+            if (error) {
+                resolve(false);
+            }
+            else {
+                resolve(true);
+            }
+        });
+    });
 }
