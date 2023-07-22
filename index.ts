@@ -4,8 +4,10 @@ import { Http2ServerRequest, Http2ServerResponse } from "http2";
 const http = require("http");
 const http2 = require("http2");
 const fs = require('node:fs')
-const dotenv = require("dotenv")
-const { log } = require("./lib/utils")
+const dotenv = require("dotenv");
+// const path = require("node:path");
+const { log } = require("./lib/utils");
+import path from "path";
 
 const HTTP_PORT = 80;
 const HTTP2_PORT = 443;
@@ -47,6 +49,7 @@ http2Server.on("request", (request: Http2ServerRequest, response: Http2ServerRes
 http2Server.on("request", (request: Http2ServerRequest) => log(`Path: ${request.url}`))
 
 function handleGETRequests(request:Http2ServerRequest, response: Http2ServerResponse) {
+  const filePath = createFilePath(request.headers[":path"]);
   response.writeHead(200, { "content-type": "text/html" });
   response.end("<h1>Hello, World!</h1>");
 }
@@ -58,5 +61,20 @@ function handlePOSTRequests(request:Http2ServerRequest, response:Http2ServerResp
     const parsedUrl = new URL(requestPath, process.env.DOMAIN);
     const main = require(`.${parsedUrl.pathname}.js`);
     main(request, response);
+  }
+}
+
+function createFilePath(requestPath:string | undefined) {
+  if (!requestPath) return ;
+
+  const parsedUrl = new URL(requestPath, process.env.DOMAIN);
+  if (parsedUrl.pathname == '/') {
+    return `/frontend/html/home.html`
+  } else if (!path.extname(parsedUrl.pathname)) {
+    // there is no extension therefore a browser path
+    return `/frontend/html${parsedUrl.pathname}`;
+  } else {
+    // all other filepaths
+    return parsedUrl.pathname
   }
 }
