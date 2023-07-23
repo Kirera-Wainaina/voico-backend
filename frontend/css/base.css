@@ -43,4 +43,11 @@ header a {
   body {
     grid-template-columns: repeat(5, 1fr);
   }
+
+  header {
+    top: 90vh;
+    right: 0;
+    height: auto;
+    width: 99vw;
+  }
 }
