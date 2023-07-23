@@ -111,10 +111,8 @@ async function sendPageResponse(response:Http2ServerResponse, filePath: string) 
       'cache-control': 'max-age=1209600'
     }
   )
-  console.log(mimeType)
   if (mimeType.includes("image")) {
     // images shouldn't be compressed
-    console.log(filePath)
     fs.createReadStream(filePath)
       .pipe(response);
       return
