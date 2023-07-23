@@ -44,5 +44,24 @@
   z-index: 2;
 }
 
+#banner {
+  grid-column: 1 / 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 99vh;
+  text-align: center;
+}
+
+#proclamation {
+  font-family: 'Caprasimo', cursive;
+  color: var(--primary-color);
+  font-size: 4em;
+}
+
+#slogan {
+  font-size: 2em;
+}
+
 @media (orientation: portrait) {
 }
