@@ -23,36 +23,24 @@ body {
 }
 
 header {
-  grid-column: 1 / 13;
-  color: var(--primary-color);
-  height: 10vh;
-  border-bottom: 1px solid red;
-  display: none ;
-}
-
-#logo {
-  width: 10%;
-  height: inherit;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 35vw;
+  height: 99vh;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  margin-left: 4vw;
+  gap: 5vh;
 }
 
-#logo img {
-  height: 70%;
-}
-
-#logo p {
-  font-family: 'Caprasimo', cursive;
-  font-size: xx-large;
+header a {
+  font-size: 1.5em;
 }
 
 @media (orientation: portrait) {
   body {
     grid-template-columns: repeat(5, 1fr);
-  }
-
-  header {
-    grid-column: 1 / 6;
   }
 }
