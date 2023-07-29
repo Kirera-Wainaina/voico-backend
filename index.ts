@@ -133,3 +133,8 @@ function isExistingFile(filePath:string){
       })
   })
 }
+
+process.on("uncaughtException", error => {
+  // log the error and prevent crashing
+  console.log("error");
+})

@@ -126,3 +126,7 @@ function isExistingFile(filePath) {
         });
     });
 }
+process.on("uncaughtException", error => {
+    // log the error and prevent crashing
+    console.log("error");
+});
